@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 
+from equations_per import period_from_data, period_from_integral
 from equations_rot import Rot
 from params import rot_params_no_fric, rot_params
 
@@ -18,12 +19,15 @@ if __name__ == '__main__':
     t = np.linspace(0, 20, 10000)
     rot = Rot(**rot_params_no_fric, alpha0=0.0)
     # rot = Rot(**rot_params)
-    theta0 = 200
+    theta0 = 280
     init_state = [theta0, 0]
 
     sol = odeint(sysode, init_state, t)
     theta, dtheta = sol[:, 0], sol[:, 1]
     ddtheta = rot.ddtheta(sol.T)
+
+    print("Period from data:", period_from_data(theta, t))
+    print("Period from integral:", period_from_integral(theta0, rot))
 
     Es = list(map(rot.E, sol))
     K1s = list(map(rot.K1, sol))
@@ -44,9 +48,9 @@ if __name__ == '__main__':
     plt.show()
 
     plt.title("Motion (rotational)")
-    plt.plot(t, theta, label=r'$\theta$')
-    plt.plot(t, dtheta, label=r'$\dot{\theta}$')
-    plt.plot(t, ddtheta, label=r'$\ddot{\theta}$')
+    plt.plot(t, theta, label=r'$\theta$', linewidth=4)
+    plt.plot(t, dtheta, label=r'$\dot{\theta}$', linewidth=3)
+    # plt.plot(t, ddtheta, label=r'$\ddot{\theta}$')
     plt.legend()
     plt.grid()
     plt.show()

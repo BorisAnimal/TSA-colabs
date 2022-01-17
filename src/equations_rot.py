@@ -31,9 +31,10 @@ class Rot(Lin):
         theta, dtheta = state
         r0, L0, R, I1, I2, m, h, g = self.params
         b_theta, tau_c, b_x, F_c = self.fric_params
+        mu = self.mu
         J = self.J(state)
         T = self.T(state)
-        return 1 / (I1 + I2 * J ** 2 / R) * (u - J * T - b_theta * dtheta - tau_c * tanh(dtheta * 100))
+        return 1 / (I1 + (J + mu) * I2 * J / R) * (u - (mu + J) * T - b_theta * dtheta - tau_c * tanh(dtheta * 100))
 
     def K(self, state):
         return self.K1(state) + self.K2(state)

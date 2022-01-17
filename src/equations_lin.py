@@ -6,6 +6,7 @@ class Lin:
     def __init__(self, r0, L0, R, I1, I2, m, h, g=9.81, b_theta=0, tau_c=0, b_x=0, F_c=0, alpha0=0.0, mu=0.0):
         self.params = [r0, L0, R, I1, I2, m, h, g]
         self.fric_params = [b_theta, tau_c, b_x, F_c]
+        self.mu = mu
         self.alpha0 = alpha0
 
     def x(self, state):

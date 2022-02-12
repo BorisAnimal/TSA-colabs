@@ -24,9 +24,9 @@ if __name__ == '__main__':
 
     sol = odeint(sysode, init_state, t)
     theta, dtheta = sol[:, 0], sol[:, 1]
-    ddtheta = rot.ddtheta(sol.T)
+    # ddtheta = rot.ddtheta(sol.T)
 
-    print("Period from data:", period_from_data(theta, t))
+    print("Period from data1,25:", period_from_data(theta, t))
     print("Period from integral:", period_from_integral(theta0, rot))
 
     Es = list(map(rot.E, sol))
@@ -35,12 +35,12 @@ if __name__ == '__main__':
     Ps = list(map(rot.P, sol))
     Alphas = list(map(rot.alpha, sol))
     r0, L0, R, I1, I2, m, h, g = rot.params
-    Ts = rot.T(sol.T) + I2 * rot.J(sol.T) / R * rot.ddtheta(sol.T)
+    # Ts = rot.T(sol.T) + I2 * rot.J(sol.T) / R * rot.ddtheta(sol.T)
 
-    plt.title("TSA tension T(t)")
-    plt.plot(t, Ts)
-    plt.grid()
-    plt.show()
+    # plt.title("TSA tension T(t)")
+    # plt.plot(t, Ts)
+    # plt.grid()
+    # plt.show()
 
     plt.title("Alphas = x/R")
     plt.plot(t, Alphas)

@@ -4,7 +4,7 @@ from scipy.integrate import odeint
 
 from equations_lin import Lin
 from equations_per import period_small_lin, period_from_data, period_from_integral
-from params import lin_params_no_fric
+from params import lin_params_no_fric, rot_params_no_fric
 
 plt.rcParams['figure.figsize'] = [12, 4]
 
@@ -17,7 +17,7 @@ def sys_ode(state, t):
 
 
 def experiment(lin):
-    t = np.linspace(0, 15, 10000)
+    t = np.linspace(0, 80, 10000)
     T1 = period_small_lin(lin)
     pers = []
     pers_non = []
@@ -41,7 +41,9 @@ def experiment(lin):
 
 
 if __name__ == '__main__':
-    for i in np.linspace(1.0, 2.0, 2):
+    for i in np.linspace(1.0, 100, 10):
         lin = Lin(**lin_params_no_fric)
+        # lin = Lin(**rot_params_no_fric)
         lin.params[3] *= i  # I1
+        # lin.params[1] *= i  # I1
         experiment(lin)

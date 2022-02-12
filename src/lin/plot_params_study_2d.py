@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     params_plot(
         ("theta0", theta0s),
-        ("I", [1e-7, 1e-6, 1e-5, 1e-4, ]),
+        ("I", [1e-7, 1e-6,3.848e-6, 1e-5 ]),
         r"$T$ sec",
         "Self oscillations period dependence on params",
     )

@@ -3,11 +3,14 @@ import numpy as np
 
 
 class Lin:
-    def __init__(self, r0, L0, R, I1, I2, m, h, g=9.81, b_theta=0, tau_c=0, b_x=0, F_c=0, alpha0=0.0, mu=0.0):
+    def __init__(self, r0, L0, R, I1, I2, m, h, g=9.81, b_theta=0, tau_c=0, b_x=0, F_c=0,
+                 mu=0.0, Kr=float("inf"), Kl=float("inf"), T0=0.0):
         self.params = [r0, L0, R, I1, I2, m, h, g]
         self.fric_params = [b_theta, tau_c, b_x, F_c]
         self.mu = mu
-        self.alpha0 = alpha0
+        self.Kr = Kr
+        self.Kl = Kl
+        self.T0 = T0
 
     def x(self, state):
         theta, dtheta = state
@@ -33,7 +36,7 @@ class Lin:
         b_theta, tau_c, b_x, F_c = self.fric_params
         dJ = self.dJ(state)
         dx = self.J(state) * dtheta
-        return m * dJ * dtheta + m * g + b_x * dx + F_c * tanh(dx * 100)
+        return self.T0 + m * dJ * dtheta + m * g + b_x * dx + F_c * tanh(dx * 100)
 
     def ddtheta(self, state, u=0):
         theta, dtheta = state

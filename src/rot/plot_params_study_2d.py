@@ -7,7 +7,7 @@ from equations_per import period_from_data, period_from_integral
 from params import rot_params_no_fric, rot_params
 from utils import harmonic_trajectory_builder
 
-plt.rcParams['figure.figsize'] = [12, 4]
+plt.rcParams['figure.figsize'] = [5, 2]
 
 
 def f(theta0, I):
@@ -27,7 +27,7 @@ def params_plot(major_param: tuple, minor_param: tuple, y_axis_title, title="",
         y = []
         for j in x1:
             y.append(f(**{label1: j, label2: i}))
-        plt.plot(x1, y, next(rote_styles), label=f"{label2} = {i}")
+        plt.plot(x1, y, next(rote_styles), linewidth=3, label=f"{label2} = {i}")
     plt.title(title)
     plt.xlabel(label1)
     plt.ylabel(y_axis_title)
@@ -44,12 +44,12 @@ if __name__ == '__main__':
         ("theta0", theta0s),
         ("I", [1e-7, 1e-6, 1e-5, 1e-4, ]),
         r"$T$ sec",
-        "Self oscillations period dependence on params",
+        "Self oscillations period (Rot) dependence on params",
     )
 
     params_plot(
         ("I", Is),
         ("theta0", [50, 100, 200, 300]),
         r"$T$ sec",
-        "Self oscillations period dependence on params",
+        "Self oscillations period (Rot) dependence on params",
     )

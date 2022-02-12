@@ -9,7 +9,7 @@ from params import rot_params_no_fric, rot_params
 from utils import harmonic_trajectory_builder
 
 
-# plt.rcParams['figure.figsize'] = [12, 4]
+plt.rcParams['figure.figsize'] = [5, 5]
 
 
 def f(theta0, I):

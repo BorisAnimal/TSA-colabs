@@ -45,8 +45,8 @@ if __name__ == '__main__':
     for file in os.listdir(dirpath):
         print(file)
         filepath = os.path.join(dirpath, file)
-
-        data = pkl.load(open(filepath, "rb"))
+        with open(filepath, "rb") as f:
+            data = pkl.load(f)
         theta = np.array(data['theta'])
         alpha = np.array(data['alpha'])
         dtheta = np.array(data['dtheta'])

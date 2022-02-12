@@ -43,8 +43,8 @@ if __name__ == '__main__':
     # Scatter dots
     for file in os.listdir(dirpath):
         filepath = os.path.join(dirpath, file)
-
         with open(filepath, "rb") as f:
+            data = pkl.load(f)
         theta = np.array(data['theta'])
         x = np.array(data['x'])
         dtheta = np.array(data['dtheta'])

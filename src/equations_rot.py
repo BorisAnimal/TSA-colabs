@@ -53,32 +53,32 @@ class Rot(Lin):
     #     dS *= (2 * L0 ** 2 - r0 ** 2 * theta ** 2) / Kr * theta ** 3 + L0 ** 2 * theta / Kl
     #     return dS
 
-    def J2(self, state):
-        theta, dtheta = state
-        r0, L0, R, I1, I2, m, h, g = self.params
-        Kr = self.Kr
-        Kl = self.Kl
+    # def J2(self, state):
+    #     theta, dtheta = state
+    #     r0, L0, R, I1, I2, m, h, g = self.params
+    #     Kr = self.Kr
+    #     Kl = self.Kl
+    #
+    #     dS = 2 * (r0 ** 2 * theta) / (L0 ** 2 - r0 ** 2 * theta ** 2) ** 2
+    #     dS *= (L0 ** 2 / Kl + 2 * L0 ** 2 * theta ** 2 / Kr - r0 ** 2 * theta ** 4 / Kr)
+    #     return dS
 
-        dS = 2 * (r0 ** 2 * theta) / (L0 ** 2 - r0 ** 2 * theta ** 2) ** 2
-        dS *= (L0 ** 2 / Kl + 2 * L0 ** 2 * theta ** 2 / Kr - r0 ** 2 * theta ** 4 / Kr)
-        return dS
-
-    def ddtheta1(self, state, u=0):
-        theta, dtheta = state
-        r0, L0, R, I1, I2, m, h, g = self.params
-        b_theta, tau_c, b_x, F_c = self.fric_params
-        mu = self.mu
-        J = self.J(state)
-        dJ = self.dJ(state)
-        J2 = self.J2(state)
-
-        tau = tau_c + b_theta * dtheta  # + TODO: + mu*T и соответственно пересчитать в символьном коде
-
-        sqr = -sign(theta) * R * (I1 ** 2 * R ** 2 + 2 * I1 * I2 ** 2 * J * J2 * dJ * dtheta + 2 * I1 * I2 * J * R * (
-                J + J2 * g * m) + I2 ** 2 * J ** 4 +
-                                  2 * I2 ** 2 * J ** 2 * J2 * (u - tau)) ** 0.5
-        return (sqr - I2 * J ** 2 * R - I2 * J * J2 * R * g * m - I1 * R ** 2 - I2 ** 2 * J * J2 * dJ * dtheta) / (
-                I2 ** 2 * J ** 2 * J2)
+    # def ddtheta1(self, state, u=0):
+    #     theta, dtheta = state
+    #     r0, L0, R, I1, I2, m, h, g = self.params
+    #     b_theta, tau_c, b_x, F_c = self.fric_params
+    #     mu = self.mu
+    #     J = self.J(state)
+    #     dJ = self.dJ(state)
+    #     J2 = self.J2(state)
+    #
+    #     tau = tau_c + b_theta * dtheta  # + TODO: + mu*T и соответственно пересчитать в символьном коде
+    #
+    #     sqr = -sign(theta) * R * (I1 ** 2 * R ** 2 + 2 * I1 * I2 ** 2 * J * J2 * dJ * dtheta + 2 * I1 * I2 * J * R * (
+    #             J + J2 * g * m) + I2 ** 2 * J ** 4 +
+    #                               2 * I2 ** 2 * J ** 2 * J2 * (u - tau)) ** 0.5
+    #     return (sqr - I2 * J ** 2 * R - I2 * J * J2 * R * g * m - I1 * R ** 2 - I2 ** 2 * J * J2 * dJ * dtheta) / (
+    #             I2 ** 2 * J ** 2 * J2)
 
     def ddtheta2(self, state, u=0):
         theta, dtheta = state

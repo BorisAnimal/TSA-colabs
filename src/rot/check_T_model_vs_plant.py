@@ -37,8 +37,8 @@ def theta_inverse(E, theta_init, plant: Lin):
 if __name__ == '__main__':
     dirpath = "../data2,5/"
     rot_params_no_fric['m'] = 2.6
-    # dirpath = "../data1,25/"
-    # rot_params_no_fric['m'] = 1.3
+    dirpath = "../data1,25/"
+    rot_params_no_fric['m'] = 1.3
     theta0s = []
     pers = []
     # Scatter dots
@@ -53,14 +53,14 @@ if __name__ == '__main__':
         T = np.array(data['T'])
         t = np.array(data['t'])
         T0 = np.percentile(T, 1)
-        alpha0 = alpha[1]
+        alpha0 = min(alpha)
 
         t_start = 5  # sec
         Ftheta = preprocess(theta, t, show_plots=False)
         Fdtheta = preprocess(dtheta, t, show_plots=False)
         Falpha = preprocess(alpha, t, show_plots=False)
         FE = preprocess(E, t, show_plots=False)
-        FT = preprocess(T, t)
+        FT = preprocess(T, t, show_plots=False)
         # t = np.linspace(t_start, 18, 1000)
         theta = Ftheta(t)
         dtheta = Fdtheta(t)
@@ -77,19 +77,19 @@ if __name__ == '__main__':
         print("Period from params by integral:", period_from_integral(theta0, plant))
         theta0s.append(theta0)
         pers.append(per)
-        break
-    plt.plot(T, linewidth=4, label='experiment')
+        # break
+        plt.plot(T, linewidth=4, label='experiment')
+        alpha0 = 0.85
+        rot = Rot(T0=0, alpha0=alpha0, **rot_params_no_fric)
+        plt.plot(rot.T(np.vstack((theta, dtheta))), linewidth=3, label='model')
+        plt.plot(rot.T(np.vstack((theta, np.zeros_like(theta)))), linewidth=2, label='model (dtheta=0)')
 
-    rot = Rot(T0=5, alpha0=alpha0, **rot_params_no_fric)
-    plt.plot(rot.T(np.vstack((theta, dtheta))), linewidth=3, label='model')
-    plt.plot(rot.T(np.vstack((theta, np.zeros_like(theta)))), linewidth=2, label='model (dtheta=0)')
+        rot = Rot(T0=0.0, alpha0=alpha0, **rot_params_no_fric)
+        plt.plot(rot.T(np.vstack((theta, dtheta))), linewidth=3, label='model (T0=0.0)')
 
-    rot = Rot(T0=0.0,alpha0=alpha0, **rot_params_no_fric)
-    plt.plot(rot.T(np.vstack((theta, dtheta))), linewidth=3, label='model (T0=0.0)')
-
-    plt.grid()
-    plt.legend()
-    # plt.title('Phase plot comparison')
-    # plt.ylabel('dtheta')
-    # plt.xlabel('theta')
-    plt.show()
+        plt.grid()
+        plt.legend()
+        # plt.title('Phase plot comparison')
+        # plt.ylabel('dtheta')
+        # plt.xlabel('theta')
+        plt.show()

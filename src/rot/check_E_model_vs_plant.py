@@ -36,13 +36,14 @@ def theta_inverse(E, theta_init, plant: Lin):
 
 if __name__ == '__main__':
     dirpath = "../data2,5/"
-    rot_params_no_fric['m'] = 2.65
+    rot_params_no_fric['m'] = 2.6
     # dirpath = "../data1,25/"
     # rot_params_no_fric['m'] = 1.3
     theta0s = []
     pers = []
     # Scatter dots
     for file in os.listdir(dirpath):
+    # for file in ['8data_ebc.pkl']:
         filepath = os.path.join(dirpath, file)
         with open(filepath, "rb") as f:
             data = pkl.load(f)
@@ -60,7 +61,7 @@ if __name__ == '__main__':
         Fdtheta = preprocess(dtheta, t, show_plots=False)
         Falpha = preprocess(alpha, t, show_plots=False)
         FE = preprocess(E, t, show_plots=False)
-        FT = preprocess(T, t)
+        FT = preprocess(T, t, show_plots=False)
         # t = np.linspace(t_start, 18, 1000)
         theta = Ftheta(t)
         dtheta = Fdtheta(t)
@@ -77,15 +78,25 @@ if __name__ == '__main__':
         print("Period from params by integral:", period_from_integral(theta0, plant))
         theta0s.append(theta0)
         pers.append(per)
-        break
-    plt.plot(E, linewidth=4, label='experiment')
 
-    rot = Rot(T0=np.percentile(T, 3), alpha0=min(alpha), **rot_params_no_fric)
-    plt.plot(rot.E(np.vstack((theta, dtheta))), linewidth=3, label='model')
-    plt.grid()
-    plt.legend()
-    plt.ylim(min(E), max(E))
-    # plt.title('Phase plot comparison')
-    # plt.ylabel('dtheta')
-    # plt.xlabel('theta')
-    plt.show()
+        rot = Rot(alpha0=min(alpha), **rot_params_no_fric)
+
+        plt.plot(E, linewidth=4, label='experiment')
+        plt.plot(rot.E(np.vstack((theta, dtheta))), linewidth=3, label='model')
+        plt.grid()
+        plt.legend()
+        plt.ylim(min(E), max(E))
+        plt.title(file)
+        # plt.ylabel('dtheta')
+        # plt.xlabel('theta')
+        plt.show()
+
+        # plt.plot(theta)
+        # plt.grid()
+        # plt.show()
+
+        # plt.plot(alpha)
+        # plt.plot(rot.alpha([theta,dtheta]))
+        # plt.grid()
+        # plt.title(file)
+        # plt.show()

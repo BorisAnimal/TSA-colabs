@@ -37,8 +37,8 @@ def theta_inverse(E, theta_init, plant: Lin):
 if __name__ == '__main__':
     dirpath = "../data2,5/"
     rot_params_no_fric['m'] = 2.65
-    dirpath = "../data1,25/"
-    rot_params_no_fric['m'] = 1.3
+    # dirpath = "../data1,25/"
+    # rot_params_no_fric['m'] = 1.3
     theta0s = []
     pers = []
     # Scatter dots
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         Fdtheta = preprocess(dtheta, t, show_plots=False)
         Falpha = preprocess(alpha, t, show_plots=False)
         FE = preprocess(E, t, show_plots=False)
-        t = np.linspace(t_start, 18, 1000)
+        t = np.linspace(t_start, max(t), 1000)
         theta = Ftheta(t)
         dtheta = Fdtheta(t)
         alpha = Falpha(t)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     plt.plot(theta, dtheta, linewidth = 4, label='experiment')
 
     t = np.linspace(0, 20, 10000)
-    rot = Rot(**rot_params_no_fric)
+    rot = Rot(alpha0=alpha[0], **rot_params_no_fric)
     init_state = [theta[0], dtheta[0]]
     theta_sim, dtheta_sim = odeint(sys_ode, init_state, t, ).T
     plt.plot(theta_sim, dtheta_sim, linewidth=3, label='simulation (coarse T model)')

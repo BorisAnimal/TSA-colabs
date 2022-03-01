@@ -68,7 +68,7 @@ if __name__ == '__main__':
         per = period_range_from_data(theta, t)
         print("Period from data:", per)
 
-        plant = Rot(**rot_params_no_fric)
+        plant = Rot(alpha0=alpha[0], **rot_params_no_fric)
         E0 = plant.E((Ftheta(t_start), Fdtheta(t_start)))
         print("E0s comparison:", E0, FE(t_start))
         theta0 = theta_inverse(E0, max(theta), plant)

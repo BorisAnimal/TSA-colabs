@@ -82,12 +82,12 @@ if __name__ == '__main__':
     # # T1 = T_integral()
     # pers = []
     # pers_non = []
-    # thetas0 = np.linspace(min(theta0s) * 0.1, min(max(theta0s) * 1.3, 270), 100)
-    # for theta0 in thetas0:
-    #     init_state = [theta0, 0]
+    # thetas0 = np.linspace(min(theta_amps) * 0.1, min(max(theta_amps) * 1.3, 270), 100)
+    # for theta_amp in thetas0:
+    #     init_state = [theta_amp, 0]
     #     theta, dtheta = odeint(sys_ode, init_state, t, ).T
     #     pers.append(period_from_data(theta, t))
-    #     pers_non.append(period_from_integral(theta0, rot))
+    #     pers_non.append(period_from_integral(theta_amp, rot))
     #
     # plt.title(r'Period ($T$) of initial state ($\theta_0$)')
     # plt.plot(thetas0, pers, linewidth=3, label=r'$T$ from simulations')

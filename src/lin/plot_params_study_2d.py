@@ -41,7 +41,7 @@ if __name__ == '__main__':
     Is = np.linspace(1e-7, 1e-4, 60)
 
     params_plot(
-        ("theta0", theta0s),
+        ("theta_amp", theta0s),
         ("I", [1e-7, 1e-6,3.848e-6, 1e-5 ]),
         r"$T$ sec",
         "Self oscillations period dependence on params",
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     params_plot(
         ("I", Is),
-        ("theta0", [50, 100, 150, 200]),
+        ("theta_amp", [50, 100, 150, 200]),
         r"$T$ sec",
         "Self oscillations period dependence on params",
     )

@@ -56,6 +56,8 @@ lin_params_no_fric['F_c'] = 0.0
 # }
 
 rot_params = {
+    "alpha0": 0.67,
+
     'r0': 0.74 * 1e-3,
     "L0": 310 * 1e-3,
     "R": 46 * 1e-3,

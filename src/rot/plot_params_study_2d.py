@@ -7,29 +7,16 @@ from equations_per import period_from_data, period_from_integral
 from params import rot_params_no_fric, rot_params
 from utils import harmonic_trajectory_builder
 
-plt.rcParams['figure.figsize'] = [5, 2]
+plt.rcParams['figure.figsize'] = [5, 4.5]
 
 
-def f(theta0, I):
-    params = rot_params_no_fric.copy()
-    params['I1'] = I
-    rot = Rot(**params)
-    return period_from_integral(theta0, rot)  # self oscillations per by integral
-
-
-def params_plot(major_param: tuple, minor_param: tuple, y_axis_title, title="",
-                rote_styles=("-", ":", "-.", "--", ".")):
-    label1, x1 = major_param
-    label2, x2 = minor_param
-    rote_styles = iter(rote_styles)
-
-    for i in x2:
-        y = []
-        for j in x1:
-            y.append(f(**{label1: j, label2: i}))
-        plt.plot(x1, y, next(rote_styles), linewidth=3, label=f"{label2} = {i}")
+def params_plot(*xs_ys_labels, x_axis_title="", y_axis_title="", title="",
+                line_styles=("-", ":", "-.", "--", ".")):
+    line_styles = iter(line_styles)
+    for x, y, label in xs_ys_labels:
+        plt.plot(x, y, next(line_styles), linewidth=3, label=label)
     plt.title(title)
-    plt.xlabel(label1)
+    plt.xlabel(x_axis_title)
     plt.ylabel(y_axis_title)
     plt.legend()
     plt.grid()
@@ -37,19 +24,45 @@ def params_plot(major_param: tuple, minor_param: tuple, y_axis_title, title="",
 
 
 if __name__ == '__main__':
-    theta0s = np.linspace(50, 300, 30)
-    Is = np.linspace(1e-7, 1e-4, 60)
+    thetas1 = np.linspace(50, 270, 30)
+    Is1 = np.linspace(1e-6, 1e-4, 60)
 
+    thetas2 = [100, 175, 270]
+    Is2 = [1e-5, 5e-5, 1e-4]
+
+    xs_ys_labels = []
+    for theta in thetas2:
+        ys = []
+        for I in Is1:
+            params = rot_params_no_fric.copy()
+            params['I1'] = I
+            rot = Rot(**params)
+            ys.append(period_from_integral(theta, rot))
+        xs_ys_labels.append((Is1, ys, r'$\alpha$ = ' + f'{rot.alpha([theta, 0.0]):.2f}'))
     params_plot(
-        ("theta_amp", theta0s),
-        ("I", [1e-7, 1e-6, 1e-5, 1e-4, ]),
-        r"$T$ sec",
-        "Self oscillations period (Rot) dependence on params",
+        *xs_ys_labels,
+        x_axis_title=r"$I$, $kgm^2$",
+        y_axis_title=r"$T$, $sec$",
+        title="Self oscillations period (Rot) dependence on params",
     )
 
+    ## 2nd plot
+    xs_ys_labels = []
+    for I in Is2:
+        params = rot_params_no_fric.copy()
+        params['I1'] = I
+        rot = Rot(**params)
+        ys = []
+        for theta in thetas1:
+            ys.append(period_from_integral(theta, rot))
+        xs_ys_labels.append((
+            rot.alpha([thetas1, np.zeros_like(thetas1)]),
+            ys,
+            r'$I$ = ' + f'{I}'
+        ))
     params_plot(
-        ("I", Is),
-        ("theta_amp", [50, 100, 200, 300]),
-        r"$T$ sec",
-        "Self oscillations period (Rot) dependence on params",
+        *xs_ys_labels,
+        x_axis_title=r"$\alpha_{amp}$, $rad$",
+        y_axis_title=r"$T$, $sec$",
+        title="Self oscillations period (Rot) dependence on params",
     )

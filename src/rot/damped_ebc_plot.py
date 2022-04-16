@@ -1,31 +1,18 @@
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import *
-import numpy as np
-from scipy.integrate import odeint
-from scipy.signal import find_peaks
-
-from equations_lin import Lin
-from equations_rot import Rot
-from equations_per import period_from_data, period_range_from_data, period_from_integral
-from params import rot_params_no_fric
-import os
 import pickle as pkl
 
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import *
+from scipy.optimize import curve_fit
+from scipy.signal import find_peaks
+
+from params import rot_params_no_fric
 from signal_processing import preprocess
 
 plt.rcParams['figure.figsize'] = [5, 4]
 plt.rcParams['axes.facecolor'] = 'white'
 
-
-def sys_ode(state, t):
-    theta, dtheta = state
-    u = 0.0
-    ddtheta = rot.ddtheta(state, u)
-    return dtheta, ddtheta
-
-
 if __name__ == '__main__':
-    filepath = "../data/112data_ebc.pkl"
+    filepath = "../data/111data_ebc.pkl"
     rot_params_no_fric['m'] = 2.6
     with open(filepath, "rb") as f:
         data = pkl.load(f)
@@ -50,27 +37,53 @@ if __name__ == '__main__':
 
     ## Step 2
     t_start = 5  # sec
-    tau = np.linspace(t_start, min(90, max(t)), 1000)
+    tau = np.linspace(t_start, min(50, max(t)), 1000)
     alpha = Falpha(tau)
-    peaks, _ = find_peaks(-abs(alpha), height=np.percentile(-abs(alpha), 60), distance=20)
+
+    # select only positive/negative part of rotations
+    theta = Ftheta(tau)
+    ids = np.array(theta) <= 0
+    alpha = np.array(alpha)[ids]
+    tau = tau[ids]
+    # remove time steps in skipped ranges
+    for i, t in enumerate(tau[1:]):
+        dt = t - tau[i]
+        if dt > 0.1:
+            tau[i + 1:] = tau[i + 1:] - dt
+
+    peaks, _ = find_peaks(-abs(alpha), height=np.percentile(-abs(alpha), 60), distance=10)
     tpeaks = np.take(tau, peaks)
+    apeaks = np.array([max(alpha[i:j]) for (i, j) in zip(peaks[:-1], peaks[1:])])
 
     pers = (tpeaks[1:] - tpeaks[:-1]) * 2
     pers = [i for i in pers if i > 0.3]
-    print(pers)
+    print("Periods:", pers)
     theta0s = []
 
-    bar(tpeaks[:len(pers)], pers)
+
+    def func(x, a, b, c):
+        return a + b * (1 - np.cos(c * x))
+
+
+    popt, pcov = curve_fit(func, apeaks, pers)
+
     grid()
+    # scatter(tpeaks[:len(pers)], pers)
+    # plot([apeaks[0], apeaks[-1]], [pers[0], pers[-1]], c='gray')
+    plot(alpha, func(alpha, *popt), c='gray', label="Fitted sinusoid")
+    scatter(apeaks, pers, c='r', label='Period sample')
+    xlim(left=apeaks[-1] * 0.9)
     title("Full period for data")
-    xlabel("time")
-    ylabel("period")
+    xlabel(r"$\alpha$, rad")
+    ylabel(r"$T$, sec")
+    legend()
     show()
 
-    scatter(tpeaks, Falpha(tpeaks), c='r')
-    plot(tau, alpha)
     grid()
-    title("Alpha of process")
-    xlabel("time")
-    ylabel("alpha, rad")
+    scatter(tpeaks, alpha[peaks], c='r', label='End of wave')
+    plot(tau, alpha, label='Joint\'s angle')
+    title("Oscillator angle under descending EPC")
+    xlabel(r"$t$, sec")
+    ylabel(r"$\alpha$, rad")
+    legend()
     show()

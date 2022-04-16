@@ -80,7 +80,8 @@ if __name__ == '__main__':
         # break
         plt.plot(alpha, linewidth=4, label='experiment')
 
-        rot = Rot(alpha0=alpha0, **rot_params_no_fric)
+        rot = Rot(**rot_params_no_fric)
+        # rot.alpha0 = alpha0
         plt.plot(rot.alpha(np.vstack((theta, dtheta))), linewidth=3, label='model')
         plt.grid()
         plt.legend()

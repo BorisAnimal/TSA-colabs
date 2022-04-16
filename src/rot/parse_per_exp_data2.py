@@ -26,7 +26,8 @@ if __name__ == '__main__':
     rot_params_no_fric['m'] = 2.6
     # dirpath = "../data1,25/"
     # rot_params_no_fric['m'] = 1.3
-    theta0s = []
+    theta_amps = []
+    alpha_amps = []
     pers = []
     # Scatter dots
     for num, file in enumerate(os.listdir(dirpath)):
@@ -58,45 +59,52 @@ if __name__ == '__main__':
 
         per = period_range_from_data(theta, t)
         print("Period from data:", per)
-        theta0 = (abs(np.percentile(theta, 1)) + abs(np.percentile(theta, 99))) / 2
-        theta0s.append(theta0)
+        theta_amp = (abs(np.percentile(theta, 1)) + abs(np.percentile(theta, 99))) / 2
+        theta_amps.append(theta_amp)
+
+        rot = Rot(T0=0, alpha0=min(alpha), U_coef=0.0, **rot_params_no_fric)
+        alpha_amp = rot.alpha([theta_amp, 0.0])
+        alpha_amps.append(alpha_amp)
         pers.append(per)
         (MIN, MEAN, MAX) = per
         label1 = "Experiment period range" if num == 0 else None
-        plt.vlines(theta0, MIN, MAX, 'b')  # , label='experimental data'
-        plt.scatter(theta0, MEAN, c='b', label=label1)  # , label='experimental data'
+        plt.vlines(alpha_amp, MIN, MAX, 'b')  # , label='experimental data'
+        plt.scatter(alpha_amp, MEAN, c='b', label=label1)  # , label='experimental data'
 
-        rot = Rot(T0 = 0, alpha0=min(alpha), U_coef=0.0, **rot_params_no_fric)
-        init_state = [theta[0], dtheta[0]]
-        theta_sim, dtheta_sim = odeint(sys_ode, init_state, t, ).T
-        (MIN, MEAN, MAX) = period_range_from_data(theta_sim, t)
-        print("Model per range:", (MIN, MEAN, MAX))
-        if MIN > 1.0:
-            label2 = "Simulation period from experiment init state" if num == 0 else None
-            plt.vlines(theta0, MIN, MAX, 'r')  # , label='experimental data'
-            plt.scatter(theta0, MEAN, c='r', label=label2)  # , label='experimental data'
+        # rot = Rot(T0=0, alpha0=min(alpha), U_coef=0.0, **rot_params_no_fric)
+        # init_state = [theta[0], dtheta[0]]
+        # theta_sim, dtheta_sim = odeint(sys_ode, init_state, t, ).T
+        # (MIN, MEAN, MAX) = period_range_from_data(theta_sim, t)
+        # print("Model per range:", (MIN, MEAN, MAX))
+        # if MIN > 1.0:
+        #     label2 = "Simulation period from experiment init state" if num == 0 else None
+        #     plt.vlines(theta_amp, MIN, MAX, 'r')  # , label='experimental data'
+        #     plt.scatter(theta_amp, MEAN, c='r', label=label2)  # , label='experimental data'
 
     t = np.linspace(0, 20, 10000)
-    rot = Rot(T0=0, alpha0=0.85, U_coef=0.0, **rot_params_no_fric)
+    rot = Rot(T0=0, alpha0=0.67, U_coef=0.0, **rot_params_no_fric)
     # rot = Rot(T0=0.0, **rot_params_no_fric)
     # T1 = T_integral()
     pers = []
     pers_non = []
-    thetas0 = np.linspace(min(theta0s) * 0.5, min(max(theta0s) * 1.1, 270), 100)
-    for theta0 in thetas0:
-        init_state = [theta0, 0]
+    thetas0 = np.linspace(min(theta_amps) * 0.5, min(max(theta_amps) * 1.1, 270), 100)
+    alphas0 = []
+    for theta_amp in thetas0:
+        init_state = [theta_amp, 0]
         theta, dtheta = odeint(sys_ode, init_state, t, ).T
-        pers.append(period_from_data(theta, t))
-        pers_non.append(period_from_integral(theta0, rot))
+        alphas0.append(rot.alpha(init_state))
+        # pers.append(period_from_data(theta, t))
+        pers_non.append(period_from_integral(theta_amp, rot))
 
-    plt.title(r'Period ($T$) of initial state ($\theta_0$)')
-    plt.plot(thetas0, pers, linewidth=3, label=r'$T$ from simulations')
-    plt.plot(thetas0, pers_non, linewidth=3, linestyle='-.', label=r'$T$ integral without stiffness energy')
+    plt.title(r'Period ($T$) of initial state ($\alpha_0$)')
+    # plt.plot(thetas0, pers, linewidth=3, label=r'$T$ from simulations')
+    # plt.plot(thetas0, pers_non, linewidth=3, linestyle='-.', label=r'$T$ integral without stiffness energy')
+    plt.plot(alphas0, pers_non, linewidth=3, c='r', label=r'$T$, sec by integral equation')
     # plt.hlines(T1, min(thetas0), max(thetas0), color='red', linestyles='--', linewidth=2.0,
     #            label=r'$T$ rotear formula')
     plt.legend()
-    plt.xlabel(r'$\theta_0$, rad')
+    plt.xlabel(r'$\alpha_0$, rad')
     plt.ylabel(r'$T$, sec')
     plt.grid()
-    plt.ylim(top=6)
+    # plt.ylim(top=6)
     plt.show()

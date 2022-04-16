@@ -1,28 +1,15 @@
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import *
-import numpy as np
-from scipy.integrate import odeint
-from scipy.signal import find_peaks
-
-from equations_lin import Lin
-from equations_rot import Rot
-from equations_per import period_from_data, period_range_from_data, period_from_integral
-from params import rot_params_no_fric
-import os
 import pickle as pkl
 
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import *
+from scipy.optimize import curve_fit
+from scipy.signal import find_peaks
+
+from params import rot_params_no_fric
 from signal_processing import preprocess
 
 plt.rcParams['figure.figsize'] = [5, 4]
 plt.rcParams['axes.facecolor'] = 'white'
-
-
-def sys_ode(state, t):
-    theta, dtheta = state
-    u = 0.0
-    ddtheta = rot.ddtheta(state, u)
-    return dtheta, ddtheta
-
 
 if __name__ == '__main__':
     filepath = "../data/111data_ebc.pkl"
@@ -38,7 +25,7 @@ if __name__ == '__main__':
     alpha0 = alpha[1]
 
     t_start = 5  # sec
-    t_end = max(t)
+    t_end = min(max(t), 55)
     Ftheta = preprocess(theta, t, show_plots=False)
     Fdtheta = preprocess(dtheta, t, show_plots=False)
     Falpha = preprocess(alpha, t, show_plots=False)
@@ -50,53 +37,53 @@ if __name__ == '__main__':
 
     ## Step 2
     t_start = 5  # sec
-    tau = np.linspace(t_start, min(90, max(t)), 1000)
+    tau = np.linspace(t_start, min(50, max(t)), 1000)
     alpha = Falpha(tau)
-    peaks, _ = find_peaks(-abs(alpha), height=np.percentile(-abs(alpha), 60), distance=20)
+
+    # select only positive/negative part of rotations
+    theta = Ftheta(tau)
+    ids = np.array(theta) <= 0
+    alpha = np.array(alpha)[ids]
+    tau = tau[ids]
+    # remove time steps in skipped ranges
+    for i, t in enumerate(tau[1:]):
+        dt = t - tau[i]
+        if dt > 0.1:
+            tau[i + 1:] = tau[i + 1:] - dt
+
+    peaks, _ = find_peaks(-abs(alpha), height=np.percentile(-abs(alpha), 60), distance=10)
     tpeaks = np.take(tau, peaks)
+    apeaks = np.array([max(alpha[i:j]) for (i, j) in zip(peaks[:-1], peaks[1:])])
 
     pers = (tpeaks[1:] - tpeaks[:-1]) * 2
     pers = [i for i in pers if i > 0.3]
-    print(pers)
+    print("Periods:", pers)
     theta0s = []
-    for i in range(len(peaks) - 1):
-        thetas = theta
-    # bar(tpeaks[:len(pers)], pers)
-    # grid()
-    # title("Full period for data")
-    # xlabel("time")
-    # ylabel("period")
-    # show()
-    #
-    # scatter(tpeaks, Falpha(tpeaks), c='r')
-    # plot(tau, alpha)
-    # grid()
-    # title("Alpha of process")
-    # xlabel("time")
-    # ylabel("alpha, rad")
-    # show()
 
-    # t = np.linspace(0, 20, 10000)
-    # rot = Rot(T0=10, alpha0=alpha0, U_coef=0.0, **rot_params_no_fric)
-    # # rot = Rot(T0=0.0, **rot_params_no_fric)
-    # # T1 = T_integral()
-    # pers = []
-    # pers_non = []
-    # thetas0 = np.linspace(min(theta0s) * 0.1, min(max(theta0s) * 1.3, 270), 100)
-    # for theta0 in thetas0:
-    #     init_state = [theta0, 0]
-    #     theta, dtheta = odeint(sys_ode, init_state, t, ).T
-    #     pers.append(period_from_data(theta, t))
-    #     pers_non.append(period_from_integral(theta0, rot))
-    #
-    # plt.title(r'Period ($T$) of initial state ($\theta_0$)')
-    # plt.plot(thetas0, pers, linewidth=3, label=r'$T$ from simulations')
-    # plt.plot(thetas0, pers_non, linewidth=3, linestyle='-.', label=r'$T$ integral without stiffness energy')
-    # # plt.hlines(T1, min(thetas0), max(thetas0), color='red', linestyles='--', linewidth=2.0,
-    # #            label=r'$T$ rotear formula')
-    # plt.legend()
-    # plt.xlabel(r'$\theta_0$, rad')
-    # plt.ylabel(r'$T$, sec')
-    # plt.grid()
-    # # plt.ylim(0, 12)
-    # plt.show()
+
+    def func(x, a, b, c):
+        return a + b * (1 - np.cos(c * x))
+
+
+    popt, pcov = curve_fit(func, apeaks, pers)
+
+    grid()
+    # scatter(tpeaks[:len(pers)], pers)
+    # plot([apeaks[0], apeaks[-1]], [pers[0], pers[-1]], c='gray')
+    plot(alpha, func(alpha, *popt), c='gray', label="Fitted sinusoid")
+    scatter(apeaks, pers, c='r', label='Period sample')
+    xlim(left=apeaks[-1] * 0.9)
+    title("Full period for data")
+    xlabel(r"$\alpha$, rad")
+    ylabel(r"$T$, sec")
+    legend()
+    show()
+
+    grid()
+    scatter(tpeaks, alpha[peaks], c='r', label='End of wave')
+    plot(tau, alpha, label='Joint\'s angle')
+    title("Oscillator angle under descending EPC")
+    xlabel(r"$t$, sec")
+    ylabel(r"$\alpha$, rad")
+    legend()
+    show()

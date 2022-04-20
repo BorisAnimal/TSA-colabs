@@ -12,7 +12,7 @@ plt.rcParams['figure.figsize'] = [5, 4]
 plt.rcParams['axes.facecolor'] = 'white'
 
 if __name__ == '__main__':
-    filepath = "../data/111data_ebc.pkl"
+    filepath = "../../data/111data_ebc.pkl"
     rot_params_no_fric['m'] = 2.6
     with open(filepath, "rb") as f:
         data = pkl.load(f)
@@ -60,28 +60,30 @@ if __name__ == '__main__':
     print("Periods:", pers)
     theta0s = []
 
-
+    # Curve fitting
     def func(x, a, b, c):
         return a + b * (1 - np.cos(c * x))
-
-
     popt, pcov = curve_fit(func, apeaks, pers)
 
     grid()
     # scatter(tpeaks[:len(pers)], pers)
     # plot([apeaks[0], apeaks[-1]], [pers[0], pers[-1]], c='gray')
-    plot(alpha, func(alpha, *popt), c='gray', label="Fitted sinusoid")
-    scatter(apeaks, pers, c='r', label='Period sample')
+    plot(alpha, func(alpha, *popt), c='gray', linewidth=3, label="Fitted model")
+    scatter(apeaks, pers, c='r', zorder=10, label='Period sample')
     xlim(left=apeaks[-1] * 0.9)
     title("Full period for data")
     xlabel(r"$\alpha$, rad")
     ylabel(r"$T$, sec")
     legend()
+    xlim(0.8, 1.5)
+    ylim(3.4,4.8)
     show()
 
     grid()
-    scatter(tpeaks, alpha[peaks], c='r', label='End of wave')
-    plot(tau, alpha, label='Joint\'s angle')
+    xticks(np.arange(5, 30, 2.5))
+    yticks(np.arange(0.6, 1.6, 0.2))
+    scatter(tpeaks, alpha[peaks], c='r', zorder=10, label='End of wave')
+    plot(tau, alpha,linewidth=3, label='Joint\'s angle')
     title("Oscillator angle under descending EPC")
     xlabel(r"$t$, sec")
     ylabel(r"$\alpha$, rad")

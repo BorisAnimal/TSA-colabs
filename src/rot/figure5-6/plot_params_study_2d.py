@@ -1,11 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.integrate import odeint
 
+from equations_per import period_from_integral
 from equations_rot import Rot
-from equations_per import period_from_data, period_from_integral
-from params import rot_params_no_fric, rot_params
-from utils import harmonic_trajectory_builder
+from params import rot_params_no_fric
 
 plt.rcParams['figure.figsize'] = [5, 4.5]
 

@@ -20,7 +20,7 @@ def f(theta0, I):
 
 if __name__ == '__main__':
     rot = Rot(**rot_params_no_fric)
-    theta0s = np.linspace(80, 270, 20)
+    theta0s = np.linspace(80, 240, 20)
     Is = np.linspace(1e-5, 1e-3, 20)
     X, Y, Z = [], [], []
     for theta0 in tqdm(theta0s):
@@ -36,11 +36,15 @@ if __name__ == '__main__':
     z = transform(Z)
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    ax.plot_surface(x, y, z, alpha=0.7, cmap='viridis', edgecolor='none')
+    ax.plot_surface(x, y, z, alpha=0.85, cmap='viridis', edgecolor='none')
+    ax.plot3D()
 
     ax.set_xlabel(r"$\alpha_{amp}$")
     ax.set_ylabel(r"$Inertia$")
     ax.set_zlabel(r"$T_{integral}$, $sec$")
+
+    # Plot experiment lines
+    # for inertia in i
 
     # ax.set_title('Surface plot')
     plt.show()
